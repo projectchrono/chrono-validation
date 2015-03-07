@@ -41,7 +41,7 @@ using namespace irr;
 // Local variables
 //
 static const std::string val_dir = "../RESULTS/";
-static const std::string out_dir = val_dir + "REVSPH_CONSTRAINT/";
+static const std::string out_dir = val_dir + "revsph_constraint/";
 static const std::string ref_dir = "revsph_constraint/";
 
 // =============================================================================
