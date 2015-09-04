@@ -23,16 +23,15 @@
 #include <fstream>
 #include <math.h>
 
-#include "core/ChFileutils.h"
+#include "chrono/core/ChFileutils.h"
+#include "chrono/physics/ChSystem.h"
+#include "chrono/physics/ChBody.h"
+#include "chrono/utils/ChUtilsInputOutput.h"
+#include "chrono/utils/ChUtilsValidation.h"
 
-#include "physics/ChSystem.h"
-#include "physics/ChBody.h"
-
-#include "unit_IRRLICHT/ChIrrApp.h"
+#include "chrono_irrlicht/ChIrrApp.h"
 
 #include "ChronoValidation_config.h"
-#include "utils/ChUtilsInputOutput.h"
-#include "utils/ChUtilsValidation.h"
 
 using namespace chrono;
 using namespace irr;
@@ -164,7 +163,7 @@ bool TestTranSpring(const ChVector<>&     jointLocGnd,      // absolute location
   ChSystem my_system;
   my_system.Set_G_acc(ChVector<>(0.0, 0.0, -g));
 
-  my_system.SetIntegrationType(ChSystem::INT_ANITESCU);
+  my_system.SetIntegrationType(ChSystem::INT_EULER_IMPLICIT_LINEARIZED);
   my_system.SetIterLCPmaxItersSpeed(100);
   my_system.SetIterLCPmaxItersStab(100); //Tasora stepper uses this, Anitescu does not
   my_system.SetLcpSolverType(ChSystem::LCP_ITERATIVE_SOR);

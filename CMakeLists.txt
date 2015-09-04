@@ -17,6 +17,7 @@ INCLUDE(CTest)
 # ------------------------------------------------------------------------------
 # Specify output locations for libraries and executables
 # ------------------------------------------------------------------------------
+
 SET(EXECUTABLE_OUTPUT_PATH ${PROJECT_BINARY_DIR}/bin)
 SET(LIBRARY_OUTPUT_PATH ${PROJECT_BINARY_DIR}/lib)
 
@@ -25,114 +26,90 @@ IF (MSVC OR XCODE_VERSION)
 ENDIF()
 
 # ------------------------------------------------------------------------------
-# Set C++11 flags
-# ------------------------------------------------------------------------------
-IF ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
-# using Clang
-ELSEIF ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
-  SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
-  SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -std=c++11")
-ELSEIF ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Intel")
-ELSEIF ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
-# using Visual Studio C++
-ENDIF()
-
-# ------------------------------------------------------------------------------
-# Find the Chrono library
+# Always use full RPATH (differentiating between the build and install trees)
 # ------------------------------------------------------------------------------
 
-# TODO: Right now, we cannot check whether or not Chrono was built with Irrlicht
-#       support.  This will require making unit_IRRLICHT a separate DLL.  
-#       For now, we assume we know what we're asking for.
-#       Later on, if Irrlicht is requested, but unit_IRRLICHT is not available,
-#       we will warn the user and disable Irrlicht support in Chrono-Validation
+# use, i.e. don't skip the full RPATH for the build tree
+SET(CMAKE_SKIP_BUILD_RPATH  FALSE)
 
-OPTION(ENABLE_IRRLICHT "Enable Irrlicht support" ON)
+# when building, don't use the install RPATH already
+# (but later on when installing)
+SET(CMAKE_BUILD_WITH_INSTALL_RPATH FALSE) 
 
-IF(ENABLE_IRRLICHT)
-    FIND_PACKAGE(ChronoEngine COMPONENTS unit_IRRLICHT)
-ELSE()
-    FIND_PACKAGE(ChronoEngine COMPONENTS)
-ENDIF()
+SET(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib")
 
+# add the automatically determined parts of the RPATH
+# which point to directories outside the build tree to the install RPATH
+SET(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
 
+# the RPATH to be used when installing, but only if it's not a system directory
+LIST(FIND CMAKE_PLATFORM_IMPLICIT_LINK_DIRECTORIES "${CMAKE_INSTALL_PREFIX}/lib" isSystemDir)
+IF("${isSystemDir}" STREQUAL "-1")
+   SET(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib")
+ENDIF("${isSystemDir}" STREQUAL "-1")
 
-MESSAGE(STATUS "Compiler: ${CH_COMPILER}")
+#-----------------------------------------------------------------------------
+# Disable some warnings
+#-----------------------------------------------------------------------------
 
-IF(CHRONOENGINE_LIBRARY_DEBUG)
-  MESSAGE(STATUS "ChronoEngine library (debug) found")
-ENDIF()
-IF(CHRONOENGINE_LIBRARY_RELEASE)
-  MESSAGE(STATUS "ChronoEngine library (release) found")
-ENDIF()
+if(${CMAKE_SYSTEM_NAME} MATCHES "Windows")
+    if(MSVC)
+        add_definitions( "-D_CRT_SECURE_NO_DEPRECATE" )  # avoids deprecation warnings
+        add_definitions( "-D_SCL_SECURE_NO_DEPRECATE" )  # avoids deprecation warnings
+        add_definitions( "-DNOMINMAX" ) # do not use MSVC's min/max macros
+        add_definitions( "-MP" ) # perform parallel builds
+    endif(MSVC)
+endif()
 
-# Stop now if the path to the Chrono SDK is invalid or if we could not find
-# at least one of the debug or release Chrono libraries.
-IF(NOT EXISTS "${CH_CHRONO_SDKDIR}/physics/ChSystem.h")
-  MESSAGE(FATAL_ERROR "Cannot find the Chrono SDK. Make sure CH_CHRONO_SDKDIR is set correctly.")
-  RETURN()
-ENDIF()
-IF(NOT CHRONOENGINE_LIBRARY_DEBUG AND NOT CHRONOENGINE_LIBRARY_RELEASE)
-  MESSAGE(FATAL_ERROR "Cannot find the ChronoEngine library. Check CH_LIBDIR_DEBUG and CH_LIBDIR_RELEASE.")
-  RETURN()
-ENDIF()
+# ------------------------------------------------------------------------------
+# Find the Chrono package with optional Irrlicht component
+# ------------------------------------------------------------------------------
+
+# Invoke find_package in CONFIG mode
+find_package(Chrono
+             OPTIONAL_COMPONENTS Irrlicht
+             CONFIG
+)
+
+# If Chrono was not found, return now.
+if(NOT Chrono_FOUND)
+  message("Could not find Chrono package")
+  return()
+endif()
+
+# ------------------------------------------------------------------------------
+# Paths to include headers
+# ------------------------------------------------------------------------------
 
 # Add paths to Chrono headers
-INCLUDE_DIRECTORIES(${CHRONOENGINE_INCLUDES})
+INCLUDE_DIRECTORIES(${CHRONO_INCLUDE_DIRS})
 
-
-# ------------------------------------------------------------------------------
 # Add paths to the top of the source directory and the binary directory
-# ------------------------------------------------------------------------------
-
 INCLUDE_DIRECTORIES(
     ${CMAKE_SOURCE_DIR}
     ${CMAKE_BINARY_DIR}
 )
 
+#--------------------------------------------------------------
+# Compilation flags
+#--------------------------------------------------------------
+
+set(COMPILE_FLAGS ${CHRONO_CXX_FLAGS})
+
+# Disable some warnings triggered by Irrlicht (Windows only)
+if(${CMAKE_SYSTEM_NAME} MATCHES "Windows")
+    SET(COMPILE_FLAGS "${COMPILE_FLAGS} /wd4275")
+endif()
+
 # ------------------------------------------------------------------------------
 # Automatically copy DLLs 
 # ------------------------------------------------------------------------------
-IF(${CMAKE_SYSTEM_NAME} MATCHES "Windows")
-    # HACK?
-    IF(CH_LIBDIR_DEBUG)
-        SET(CH_BINDIR "${CH_LIBDIR_DEBUG}/../../bin")
-    ENDIF()
-    IF(CH_LIBDIR_RELEASE)
-        SET(CH_BINDIR "${CH_LIBDIR_RELEASE}/../../bin")
-    ENDIF()
 
-    # Create custom target for copying DLLs; add it to the default build target
-    ADD_CUSTOM_TARGET(COPY_DLLS ALL)
+# Add custom command for copying Chrono DLLs to the appropriate binary output
+# folder (on Windows only). This CMake function is defined in Chronoconfig.cmake.
+# Note that this requires EXECUTABLE_OUTPUT_PATH to be defined.
 
-    # Create custom commands, invoked post-build to copy DLLs to the appropriate
-    # directory (depending on the configuration selected at build time in VS)
-    ADD_CUSTOM_COMMAND(
-        TARGET COPY_DLLS POST_BUILD
-        COMMAND ${CMAKE_COMMAND} -E copy_if_different
-            "${CH_BINDIR}/$<CONFIGURATION>/ChronoEngine.dll"
-            "${CMAKE_BINARY_DIR}/bin/$<CONFIGURATION>"
-    )
-
-    IF(ENABLE_IRRLICHT)
-        IF("${CH_COMPILER}" STREQUAL "COMPILER_MSVC")
-            SET(CH_IRRLICHT_DLL "${CH_IRRLICHT_SDKDIR}/bin/Win32-VisualStudio/Irrlicht.dll")
-        ELSEIF("${CH_COMPILER}" STREQUAL "COMPILER_MSVC_X64")
-            SET(CH_IRRLICHT_DLL "${CH_IRRLICHT_SDKDIR}/bin/Win64-VisualStudio/Irrlicht.dll")
-        ENDIF()
-
-        ADD_CUSTOM_COMMAND(
-            TARGET COPY_DLLS POST_BUILD
-            COMMAND ${CMAKE_COMMAND} -E copy_if_different
-                "${CH_BINDIR}/$<CONFIGURATION>/ChronoEngine_IRRLICHT.dll"
-                "${CMAKE_BINARY_DIR}/bin/$<CONFIGURATION>"
-            COMMAND ${CMAKE_COMMAND} -E copy_if_different
-                "${CH_IRRLICHT_DLL}"
-                "${CMAKE_BINARY_DIR}/bin/$<CONFIGURATION>"
-        )
-    ENDIF()
-
-ENDIF()
+add_DLL_copy_command("${CHRONO_DLLS}")
 
 # ------------------------------------------------------------------------------
 # Copy the data folder to the bin directory
@@ -146,35 +123,32 @@ ELSE()
   FILE( COPY ${CMAKE_SOURCE_DIR}/data/ DESTINATION ${CMAKE_BINARY_DIR}/data/)
 ENDIF()
 
-
 # ------------------------------------------------------------------------------
 # Create configuration file
 # ------------------------------------------------------------------------------
 
 # Prepare replacement variables
 
-IF(ENABLE_IRRLICHT)
+IF(CHRONO_IRRLICHT_FOUND)
   SET(IRRLICHT_ENABLED "1")
 ELSE()
   SET(IRRLICHT_ENABLED "0")
 ENDIF()
 
-SET(CHRONO_DATA_DIR "${CH_CHRONO_SDKDIR}/demos/data/")
+SET(CHRONO_DATA_DIR "${CHRONO_DATA_DIR}")
 
 # Generate the configuration header file using substitution variables.
-# Place the header file in the library output directory and make sure it can
-# be found at compile time.
+# Place the header file in the library output directory.
 
 CONFIGURE_FILE(
   ${CMAKE_MODULE_PATH}/ChronoValidation_config.h.in
   ${PROJECT_BINARY_DIR}/ChronoValidation_config.h
   )
 
-INCLUDE_DIRECTORIES(${PROJECT_BINARY_DIR})
-
-
 # ------------------------------------------------------------------------------
 # Add subdirectories
 # ------------------------------------------------------------------------------
-ADD_SUBDIRECTORY(utils)
+
+message(STATUS "==== Add tests ====")
+
 ADD_SUBDIRECTORY(joints)
