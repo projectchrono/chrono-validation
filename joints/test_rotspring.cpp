@@ -96,7 +96,7 @@ int main(int argc, char* argv[])
   }
 
   // Set the simulation and output step sizes
-  double sim_step = 5e-4;
+  double sim_step = 2e-4;
   double out_step = 1e-2;
 
   std::string test_name;
