@@ -34,6 +34,7 @@
 #include "ChronoValidation_config.h"
 
 using namespace chrono;
+using namespace chrono::irrlicht;
 using namespace irr;
 
 
@@ -249,11 +250,11 @@ bool TestTranSpringCB(const ChVector<>&     jointLocGnd,      // absolute locati
 
   // Create the ground body
 
-  ChSharedBodyPtr  ground(new ChBody);
+  auto ground = std::make_shared<ChBody>();
   my_system.AddBody(ground);
   ground->SetBodyFixed(true);
   // Add some geometry to the ground body for visualizing the revolute joint
-  ChSharedPtr<ChSphereShape> sph_g(new ChSphereShape);
+  auto sph_g = std::make_shared<ChSphereShape>();
   sph_g->GetSphereGeometry().center = jointLocGnd;
   sph_g->GetSphereGeometry().rad = 0.05;
   ground->AddAsset(sph_g);
@@ -264,18 +265,18 @@ bool TestTranSpringCB(const ChVector<>&     jointLocGnd,      // absolute locati
   // consistent with the specified joint location.
   // The pendulum CG is assumed to be at half its length.
 
-  ChSharedBodyPtr  pendulum(new ChBody);
+  auto pendulum = std::make_shared<ChBody>();
   my_system.AddBody(pendulum);
   pendulum->SetPos(PendCSYS.pos);
   pendulum->SetRot(PendCSYS.rot);
   pendulum->SetMass(mass);
   pendulum->SetInertiaXX(inertiaXX);
   // Add some geometry to the pendulum for visualization
-  ChSharedPtr<ChSphereShape> sph_p(new ChSphereShape);
+  auto sph_p = std::make_shared<ChSphereShape>();
   sph_p->GetSphereGeometry().center = pendulum->TransformPointParentToLocal(jointLocPend);
   sph_p->GetSphereGeometry().rad = 0.05;
   pendulum->AddAsset(sph_p);
-  ChSharedPtr<ChBoxShape> box_p(new ChBoxShape);
+  auto box_p = std::make_shared<ChBoxShape>();
   box_p->GetBoxGeometry().Size = ChVector<>(0.5 * length - 0.05, 0.05 * length, 0.05 * length);
   pendulum->AddAsset(box_p);
 
@@ -286,7 +287,7 @@ bool TestTranSpringCB(const ChVector<>&     jointLocGnd,      // absolute locati
 
   ChSpringForceCallback *force;
 
-  ChSharedPtr<ChLinkSpringCB> spring = ChSharedPtr<ChLinkSpringCB>(new ChLinkSpringCB);
+  auto spring = std::make_shared<ChLinkSpringCB>();
   spring->Initialize(pendulum, ground, false, jointLocPend, jointLocGnd, true);
   if(customSpringType==1)
   {
@@ -335,8 +336,7 @@ bool TestTranSpringCB(const ChVector<>&     jointLocGnd,      // absolute locati
       return false;
     }
 
-    while (application->GetDevice()->run())
-    {
+    while (application->GetDevice()->run()) {
       if (save && my_system.GetChTime() >= outTime - simTimeStep / 2) {
         char filename[100];
         sprintf(filename, "%s/data_%03d.dat", pov_dir.c_str(), outFrame);
@@ -350,17 +350,17 @@ bool TestTranSpringCB(const ChVector<>&     jointLocGnd,      // absolute locati
 
       // Render the spring
       ChIrrTools::drawSpring(application->GetVideoDriver(), 0.05,
-        spring->GetEndPoint1Abs(),
-        spring->GetEndPoint2Abs(),
-        video::SColor(255, 150, 20, 20), 80, 15, true);
+                             spring->GetEndPoint1Abs(),
+                             spring->GetEndPoint2Abs(),
+                             video::SColor(255, 150, 20, 20), 80, 15, true);
 
       // Draw an XZ grid at the global origin to add in visualization
       ChIrrTools::drawGrid(
-        application->GetVideoDriver(), 1, 1, 20, 20,
-        ChCoordsys<>(ChVector<>(0, 0, 0), Q_from_AngX(CH_C_PI_2)),
-        video::SColor(255, 80, 100, 100), true);
+          application->GetVideoDriver(), 1, 1, 20, 20,
+          ChCoordsys<>(ChVector<>(0, 0, 0), Q_from_AngX(CH_C_PI_2)),
+          video::SColor(255, 80, 100, 100), true);
 
-      application->DoStep();  //Take one step in time
+      application->DoStep(); // Take one step in time
       application->EndScene();
     }
 
