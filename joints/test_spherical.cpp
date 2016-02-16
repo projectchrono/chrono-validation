@@ -33,6 +33,7 @@
 #include "ChronoValidation_config.h"
 
 using namespace chrono;
+using namespace chrono::irrlicht;
 using namespace irr;
 
 
@@ -165,11 +166,11 @@ bool TestSpherical(const ChVector<>&     jointLoc,         // absolute location 
 
   // Create the ground body
 
-  ChSharedBodyPtr  ground(new ChBody);
+  auto ground = std::make_shared<ChBody>();
   my_system.AddBody(ground);
   ground->SetBodyFixed(true);
   // Add some geometry to the ground body for visualizing the spherical joint
-  ChSharedPtr<ChSphereShape> sph_g(new ChSphereShape);
+  auto sph_g = std::make_shared<ChSphereShape>();
   sph_g->GetSphereGeometry().center = jointLoc;
   sph_g->GetSphereGeometry().rad = 0.2;
   ground->AddAsset(sph_g);
@@ -181,19 +182,19 @@ bool TestSpherical(const ChVector<>&     jointLoc,         // absolute location 
   // consistent with the specified joint location.
   // The pendulum CG is assumed to be at half its length.
 
-  ChSharedBodyPtr  pendulum(new ChBody);
+  auto pendulum = std::make_shared<ChBody>();
   my_system.AddBody(pendulum);
   pendulum->SetPos(jointLoc + jointRot.Rotate(ChVector<>(length / 2, 0, 0)));
   pendulum->SetRot(jointRot);
   pendulum->SetMass(mass);
   pendulum->SetInertiaXX(inertiaXX);
   // Add some geometry to the pendulum for visualization
-  ChSharedPtr<ChCylinderShape> cyl_p1(new ChCylinderShape);
+  auto cyl_p1 = std::make_shared<ChCylinderShape>();
   cyl_p1->GetCylinderGeometry().p1 = ChVector<>(-length / 2, 0, 0);
   cyl_p1->GetCylinderGeometry().p2 = ChVector<>(length / 2, 0, 0);
   cyl_p1->GetCylinderGeometry().rad = 0.1;
   pendulum->AddAsset(cyl_p1);
-  ChSharedPtr<ChCylinderShape> cyl_p2(new ChCylinderShape);
+  auto cyl_p2 = std::make_shared<ChCylinderShape>();
   cyl_p2->GetCylinderGeometry().p1 = ChVector<>(-length / 2, 0, -0.2);
   cyl_p2->GetCylinderGeometry().p2 = ChVector<>(-length / 2, 0, 0.2);
   cyl_p2->GetCylinderGeometry().rad = 0.1;
@@ -203,7 +204,7 @@ bool TestSpherical(const ChVector<>&     jointLoc,         // absolute location 
   // reference frame. The revolute joint's axis of rotation will be the Z axis
   // of the specified rotation matrix.
 
-  ChSharedPtr<ChLinkLockSpherical>  sphericalJoint(new ChLinkLockSpherical);
+  auto sphericalJoint = std::make_shared<ChLinkLockSpherical>();
   sphericalJoint->Initialize(pendulum, ground, ChCoordsys<>(jointLoc, jointRot));
   my_system.AddLink(sphericalJoint);
 

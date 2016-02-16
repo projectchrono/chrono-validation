@@ -34,6 +34,7 @@
 #include "ChronoValidation_config.h"
 
 using namespace chrono;
+using namespace chrono::irrlicht;
 using namespace irr;
 
 
@@ -161,11 +162,11 @@ bool TestRackPinion(const ChVector<>&     jointLoc,         // absolute location
 
   // Create the ground body
 
-  ChSharedBodyPtr  ground(new ChBody);
+  auto ground = std::make_shared<ChBody>();
   my_system.AddBody(ground);
   ground->SetBodyFixed(true);
   // Add some geometry to the ground body for visualizing the pinion revolute joint
-  ChSharedPtr<ChCylinderShape> cyl_g(new ChCylinderShape);
+  auto cyl_g = std::make_shared<ChCylinderShape>();
   cyl_g->GetCylinderGeometry().p1 = jointLoc + Q_from_AngY(CH_C_PI_2).Rotate(ChVector<>(0, 0, -0.4));
   cyl_g->GetCylinderGeometry().p2 = jointLoc + Q_from_AngY(CH_C_PI_2).Rotate(ChVector<>(0, 0, 0.4));
   cyl_g->GetCylinderGeometry().rad = 0.05;
@@ -173,51 +174,51 @@ bool TestRackPinion(const ChVector<>&     jointLoc,         // absolute location
 
 
   // Create the pinion body in an initial configuration at rest
-  ChSharedBodyPtr  pinion(new ChBody);
+  auto pinion = std::make_shared<ChBody>();
   my_system.AddBody(pinion);
   pinion->SetPos(jointLoc);
   pinion->SetRot(Q_from_AngY(CH_C_PI_2));
   pinion->SetMass(massPinion);
   pinion->SetInertiaXX(inertiaXX_Pinion);
-  ChSharedPtr<ChCylinderShape> cyl_p(new ChCylinderShape);
+  auto cyl_p = std::make_shared<ChCylinderShape>();
   cyl_p->GetCylinderGeometry().p1 = ChVector<>(0, 0, -0.2);
   cyl_p->GetCylinderGeometry().p2 = ChVector<>(0, 0, 0.2);
   cyl_p->GetCylinderGeometry().rad = 0.1;
   pinion->AddAsset(cyl_p);
-  ChSharedPtr<ChBoxShape> box_p(new ChBoxShape);
+  auto box_p = std::make_shared<ChBoxShape>();
   box_p->GetBoxGeometry().Size = ChVector<>(0.08,0.8,0.2);
   pinion->AddAsset(box_p);
-  ChSharedPtr<ChColorAsset> col_p(new ChColorAsset);
+  auto col_p = std::make_shared<ChColorAsset>();
   col_p->SetColor(ChColor(0.6f, 0.2f, 0.2f));
   pinion->AddAsset(col_p);
 
   // Create the rack body in an initial configuration at rest
-  ChSharedBodyPtr  rack(new ChBody);
+  auto rack = std::make_shared<ChBody>();
   my_system.AddBody(rack);
   rack->SetPos(jointLoc+ChVector<>(0, radiusPinion, 0));
   rack->SetRot(QUNIT);
   rack->SetMass(massRack);
   rack->SetInertiaXX(inertiaXX_Rack);
-  ChSharedPtr<ChBoxShape> box_r(new ChBoxShape);
+  auto box_r = std::make_shared<ChBoxShape>();
   box_r->GetBoxGeometry().Size = ChVector<>(0.05 * lengthRack, 0.01 * lengthRack, 0.5 * lengthRack);
   rack->AddAsset(box_r);
 
     // Create revolute joint between pinion and ground at "loc" in the global
   // reference frame. The revolute joint's axis of rotation (Z) will be the 
   // global x axis.
-  ChSharedPtr<ChLinkLockRevolute>  revoluteJoint(new ChLinkLockRevolute);
+  auto revoluteJoint = std::make_shared<ChLinkLockRevolute>();
   revoluteJoint->Initialize(pinion, ground, ChCoordsys<>(jointLoc, Q_from_AngY(CH_C_PI_2)));
   my_system.AddLink(revoluteJoint);
 
   // Create prismatic joint between rack and ground at "loc" - Pinion Radius in the global
   // reference frame. The prismatic joint's axis of translation will be the Z axis
   // of the specified rotation matrix.
-  ChSharedPtr<ChLinkLockPrismatic>  prismaticJoint(new ChLinkLockPrismatic);
+  auto prismaticJoint = std::make_shared<ChLinkLockPrismatic>();
   prismaticJoint->Initialize(rack, ground, ChCoordsys<>(jointLoc+ChVector<>(0, -radiusPinion, 0), QUNIT));
   my_system.AddLink(prismaticJoint);
 
   //Create the Rack and Pinion joint
-  ChSharedPtr<ChLinkRackpinion>  rackpinionJoint(new ChLinkRackpinion);
+  auto rackpinionJoint = std::make_shared<ChLinkRackpinion>();
   rackpinionJoint->Initialize(pinion,rack,false,ChFrame<>(jointLoc, Q_from_AngY(-CH_C_PI_2)),ChFrame<>(jointLoc+ChVector<>(0, 0, 0), Q_from_AngY(-CH_C_PI_2)));
   rackpinionJoint->SetPinionRadius(-radiusPinion);
   rackpinionJoint->SetAlpha(CH_C_PI_4);

@@ -33,6 +33,7 @@
 #include "ChronoValidation_config.h"
 
 using namespace chrono;
+using namespace chrono::irrlicht;
 using namespace irr;
 
 
@@ -179,11 +180,11 @@ bool TestRevSpherical(const ChVector<>&     jointLocGnd,      // absolute locati
 
   // Create the ground body
 
-  ChSharedBodyPtr  ground(new ChBody);
+  auto ground = std::make_shared<ChBody>();
   my_system.AddBody(ground);
   ground->SetBodyFixed(true);
   // Add some geometry to the ground body for visualizing the revolute joint
-  ChSharedPtr<ChCylinderShape> cyl_g(new ChCylinderShape);
+  auto cyl_g = std::make_shared<ChCylinderShape>();
   cyl_g->GetCylinderGeometry().p1 = jointLocGnd + jointRevAxis*0.4;
   cyl_g->GetCylinderGeometry().p2 = jointLocGnd + jointRevAxis*-0.4;
   cyl_g->GetCylinderGeometry().rad = 0.05;
@@ -195,18 +196,18 @@ bool TestRevSpherical(const ChVector<>&     jointLocGnd,      // absolute locati
   // consistent with the specified joint location.
   // The pendulum CG is assumed to be at half its length.
 
-  ChSharedBodyPtr  pendulum(new ChBody);
+  auto pendulum = std::make_shared<ChBody>();
   my_system.AddBody(pendulum);
   pendulum->SetPos(PendCSYS.pos);
   pendulum->SetRot(PendCSYS.rot);
   pendulum->SetMass(mass);
   pendulum->SetInertiaXX(inertiaXX);
   // Add some geometry to the pendulum for visualization
-  ChSharedPtr<ChSphereShape> sph_p(new ChSphereShape);
+  auto sph_p = std::make_shared<ChSphereShape>();
   sph_p->GetSphereGeometry().center = pendulum->TransformPointParentToLocal(jointLocPend);
   sph_p->GetSphereGeometry().rad = 0.05;
   pendulum->AddAsset(sph_p);
-  ChSharedPtr<ChBoxShape> box_p(new ChBoxShape);
+  auto box_p = std::make_shared<ChBoxShape>();
   box_p->GetBoxGeometry().Size = ChVector<>(0.05 * length, 0.5 * length, 0.05 * length);
   pendulum->AddAsset(box_p);
 
@@ -215,7 +216,7 @@ bool TestRevSpherical(const ChVector<>&     jointLocGnd,      // absolute locati
   // The constrained distance is set equal to the inital distance between
   // "jointLocPend" and "jointLocGnd".
 
-  ChSharedPtr<ChLinkRevoluteSpherical>  revSphericalConstraint(new ChLinkRevoluteSpherical);
+  auto revSphericalConstraint = std::make_shared<ChLinkRevoluteSpherical>();
   revSphericalConstraint->Initialize(ground, pendulum, false, jointLocGnd, jointRevAxis, jointLocPend, true);
   my_system.AddLink(revSphericalConstraint);
 

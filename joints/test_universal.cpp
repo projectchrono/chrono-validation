@@ -33,6 +33,7 @@
 #include "ChronoValidation_config.h"
 
 using namespace chrono;
+using namespace chrono::irrlicht;
 using namespace irr;
 
 
@@ -183,16 +184,16 @@ bool TestUniversal(const ChVector<>&     jointLoc,         // absolute location 
 
   // Create the ground body
 
-  ChSharedBodyPtr  ground(new ChBody);
+  auto ground = std::make_shared<ChBody>();
   my_system.AddBody(ground);
   ground->SetBodyFixed(true);
   // Add some geometry to the ground body for visualizing the universal joint
-  ChSharedPtr<ChCylinderShape> cyl_g(new ChCylinderShape);
+  auto cyl_g = std::make_shared<ChCylinderShape>();
   cyl_g->GetCylinderGeometry().p1 = jointLoc + jointRot.Rotate(ChVector<>(-0.4, 0, 0));
   cyl_g->GetCylinderGeometry().p2 = jointLoc + jointRot.Rotate(ChVector<>(0.4, 0, 0));
   cyl_g->GetCylinderGeometry().rad = 0.05;
   ground->AddAsset(cyl_g);
-  ChSharedPtr<ChBoxShape> box_g(new ChBoxShape);
+  auto box_g = std::make_shared<ChBoxShape>();
   box_g->GetBoxGeometry().Size = ChVector<>(0.01, 0.4, 0.4);
   box_g->Pos = jointLoc;
   box_g->Rot = jointRot;
@@ -201,22 +202,22 @@ bool TestUniversal(const ChVector<>&     jointLoc,         // absolute location 
   // Create the pendulum body in an initial configuration at rest.
   // The pendulum CG is assumed to be at half its length.
 
-  ChSharedBodyPtr  pendulum(new ChBody);
+  auto pendulum = std::make_shared<ChBody>();
   my_system.AddBody(pendulum);
   pendulum->SetPos(jointLoc + jointRot.Rotate(ChVector<>(0, 0, -0.5 * length)));
   pendulum->SetRot(jointRot);
   pendulum->SetMass(mass);
   pendulum->SetInertiaXX(inertiaXX);
   // Add some geometry to the pendulum for visualization
-  ChSharedPtr<ChBoxShape> box_p(new ChBoxShape);
+  auto box_p = std::make_shared<ChBoxShape>();
   box_p->GetBoxGeometry().Size = ChVector<>(0.05 * length, 0.05 * length, 0.5 * length);
   pendulum->AddAsset(box_p);
-  ChSharedPtr<ChCylinderShape> cyl_p(new ChCylinderShape);
+  auto cyl_p = std::make_shared<ChCylinderShape>();
   cyl_p->GetCylinderGeometry().p1 = ChVector<>(0, -0.4, 0.5 * length);
   cyl_p->GetCylinderGeometry().p2 = ChVector<>(0, 0.4, 0.5 * length);
   cyl_p->GetCylinderGeometry().rad = 0.05;
   pendulum->AddAsset(cyl_p);
-  ChSharedPtr<ChColorAsset> col_p(new ChColorAsset);
+  auto col_p = std::make_shared<ChColorAsset>();
   col_p->SetColor(ChColor(0.6f, 0.2f, 0.2f));
   pendulum->AddAsset(col_p);
 
@@ -224,7 +225,7 @@ bool TestUniversal(const ChVector<>&     jointLoc,         // absolute location 
   // Create universal joint between pendulum and ground at "loc" in the global
   // reference frame.
 
-  ChSharedPtr<ChLinkUniversal>  universalJoint(new ChLinkUniversal);
+  auto universalJoint = std::make_shared<ChLinkUniversal>();
   universalJoint->Initialize(ground, pendulum, ChFrame<>(jointLoc, jointRot));
   my_system.AddLink(universalJoint);
 

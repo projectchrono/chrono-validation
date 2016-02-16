@@ -33,6 +33,7 @@
 #include "ChronoValidation_config.h"
 
 using namespace chrono;
+using namespace chrono::irrlicht;
 using namespace irr;
 
 
@@ -189,11 +190,11 @@ bool TestCylindrical(const ChVector<>&     jointLoc,         // absolute locatio
 
   // Create the ground body
 
-  ChSharedBodyPtr  ground(new ChBody);
+  auto ground = std::make_shared<ChBody>();
   my_system.AddBody(ground);
   ground->SetBodyFixed(true);
   // Add some geometry to the ground body for visualizing the revolute joint
-  ChSharedPtr<ChCylinderShape> cyl_g(new ChCylinderShape);
+  auto cyl_g = std::make_shared<ChCylinderShape>();
   cyl_g->GetCylinderGeometry().p1 = jointLoc + jointRot.Rotate(ChVector<>(0, 0, -length*5));
   cyl_g->GetCylinderGeometry().p2 = jointLoc + jointRot.Rotate(ChVector<>(0, 0, length*5));
   cyl_g->GetCylinderGeometry().rad = 0.05;
@@ -204,19 +205,19 @@ bool TestCylindrical(const ChVector<>&     jointLoc,         // absolute locatio
   // consistent with the specified joint location.
   // The pendulum CG is assumed to be at half its length.
 
-  ChSharedBodyPtr  pendulum(new ChBody);
+  auto pendulum = std::make_shared<ChBody>();
   my_system.AddBody(pendulum);
   pendulum->SetPos(jointLoc + jointRot.Rotate(ChVector<>(length / 2, 0, 0)));
   pendulum->SetRot(jointRot);
   pendulum->SetMass(mass);
   pendulum->SetInertiaXX(inertiaXX);
   // Add some geometry to the pendulum for visualization
-  ChSharedPtr<ChCylinderShape> cyl_p1(new ChCylinderShape);
+  auto cyl_p1 = std::make_shared<ChCylinderShape>();
   cyl_p1->GetCylinderGeometry().p1 = ChVector<>(-length / 2, 0, 0);
   cyl_p1->GetCylinderGeometry().p2 = ChVector<>(length / 2, 0, 0);
   cyl_p1->GetCylinderGeometry().rad = 0.1;
   pendulum->AddAsset(cyl_p1);
-  ChSharedPtr<ChCylinderShape> cyl_p2(new ChCylinderShape);
+  auto cyl_p2 = std::make_shared<ChCylinderShape>();
   cyl_p2->GetCylinderGeometry().p1 = ChVector<>(-length / 2, 0, -0.2);
   cyl_p2->GetCylinderGeometry().p2 = ChVector<>(-length / 2, 0, 0.2);
   cyl_p2->GetCylinderGeometry().rad = 0.1;
@@ -226,7 +227,7 @@ bool TestCylindrical(const ChVector<>&     jointLoc,         // absolute locatio
   // reference frame. The cylindrical joint's axis of rotation and translation
   // will be the Z axis of the specified rotation matrix.
 
-  ChSharedPtr<ChLinkLockCylindrical>  cylindricalJoint(new ChLinkLockCylindrical);
+  auto cylindricalJoint = std::make_shared<ChLinkLockCylindrical>();
   cylindricalJoint->Initialize(pendulum, ground, ChCoordsys<>(jointLoc, jointRot));
   my_system.AddLink(cylindricalJoint);
 

@@ -33,6 +33,7 @@
 #include "ChronoValidation_config.h"
 
 using namespace chrono;
+using namespace chrono::irrlicht;
 using namespace irr;
 
 
@@ -188,11 +189,11 @@ bool TestPrismatic(const ChVector<>&     jointLoc,         // absolute location 
 
   // Create the ground body
 
-  ChSharedBodyPtr  ground(new ChBody);
+  auto ground = std::make_shared<ChBody>();
   my_system.AddBody(ground);
   ground->SetBodyFixed(true);
   // Add some geometry to the ground body for visualizing the prismatic joint
-  ChSharedPtr<ChBoxShape> box_g(new ChBoxShape);
+  auto box_g = std::make_shared<ChBoxShape>();
   box_g->GetBoxGeometry().Size = ChVector<>(0.1, 0.1, length*5);
   box_g->Pos = jointLoc;
   box_g->Rot = jointRot;
@@ -203,21 +204,21 @@ bool TestPrismatic(const ChVector<>&     jointLoc,         // absolute location 
   // consistent with the specified joint location.
   // The pendulum CG is assumed to be at half its length.
 
-  ChSharedBodyPtr  pendulum(new ChBody);
+  auto pendulum = std::make_shared<ChBody>();
   my_system.AddBody(pendulum);
   pendulum->SetPos(jointLoc + jointRot.Rotate(ChVector<>(length / 2, 0, 0)));
   pendulum->SetRot(jointRot);
   pendulum->SetMass(mass);
   pendulum->SetInertiaXX(inertiaXX);
   // Add some geometry to the pendulum for visualization
-  ChSharedPtr<ChBoxShape> box_p1(new ChBoxShape);
+  auto box_p1 = std::make_shared<ChBoxShape>();
   box_p1->GetBoxGeometry().Size = ChVector<>(0.2, 0.2, .4);
   box_p1->Pos = -jointRot.Rotate(ChVector<>(length / 2, 0, 0));
   pendulum->AddAsset(box_p1);
-  ChSharedPtr<ChBoxShape> box_p2(new ChBoxShape);
+  auto box_p2 = std::make_shared<ChBoxShape>();
   box_p2->GetBoxGeometry().Size = ChVector<>(0.5 * length, 0.05 * length, 0.05 * length);
   pendulum->AddAsset(box_p2);
-  ChSharedPtr<ChColorAsset> col_p(new ChColorAsset);
+  auto col_p = std::make_shared<ChColorAsset>();
   col_p->SetColor(ChColor(0.6f, 0.2f, 0.2f));
   pendulum->AddAsset(col_p);
 
@@ -225,7 +226,7 @@ bool TestPrismatic(const ChVector<>&     jointLoc,         // absolute location 
   // reference frame. The prismatic joint's axis of translation will be the Z axis
   // of the specified rotation matrix.
 
-  ChSharedPtr<ChLinkLockPrismatic>  prismaticJoint(new ChLinkLockPrismatic);
+  auto prismaticJoint = std::make_shared<ChLinkLockPrismatic>();
   prismaticJoint->Initialize(pendulum, ground, ChCoordsys<>(jointLoc, jointRot));
   my_system.AddLink(prismaticJoint);
 
