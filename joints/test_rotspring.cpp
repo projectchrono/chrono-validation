@@ -47,20 +47,21 @@ static const std::string ref_dir = "rotspring_force/";
 
 // =============================================================================
 
-// Functor class for a custom rotaional spring constant modifier (function of position only)
-  class ChFunction_CustomSpring : public ChFunction
-  {
-  public:
-    ChFunction* new_Duplicate() {return new ChFunction_CustomSpring;} 
+// Functor class for a custom rotaional spring constant modifier (function of
+// position only)
+class ChFunction_CustomSpring : public ChFunction {
+public:
+  virtual ChFunction_CustomSpring *Clone() const override {
+    return new ChFunction_CustomSpring;
+  }
 
-    double Get_y(double x)
-    {
-      double spring_coef = 50;
-      double spring_nonlin_coef = 10;
+  virtual double Get_y(double x) const override {
+    double spring_coef = 50;
+    double spring_nonlin_coef = 10;
 
-      return spring_coef + spring_nonlin_coef * fabs(x);
-    }
-  };
+    return spring_coef + spring_nonlin_coef * fabs(x);
+  }
+};
 
 // =============================================================================
 // Prototypes of local functions
@@ -180,9 +181,9 @@ bool TestRotSpring(const ChVector<>&     jointLoc,         // absolute location 
   my_system.Set_G_acc(ChVector<>(0.0, 0.0, -g));
 
   my_system.SetIntegrationType(ChSystem::INT_EULER_IMPLICIT_LINEARIZED);
-  my_system.SetIterLCPmaxItersSpeed(100);
-  my_system.SetIterLCPmaxItersStab(100); //Tasora stepper uses this, Anitescu does not
-  my_system.SetLcpSolverType(ChSystem::LCP_ITERATIVE_SOR);
+  my_system.SetMaxItersSolverSpeed(100);
+  my_system.SetMaxItersSolverStab(100); //Tasora stepper uses this, Anitescu does not
+  my_system.SetSolverType(ChSystem::SOLVER_SOR);
   my_system.SetTol(1e-6);
   my_system.SetTolForce(1e-4);
 
