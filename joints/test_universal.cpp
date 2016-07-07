@@ -120,22 +120,23 @@ int main(int argc, char* argv[])
 
   // Case 3
 
-  test_name = "Universal_Case03";
-  TestUniversal(ChVector<>(0, 0, 0), Q_from_AngAxis(CH_C_PI / 2, ChVector<>(0.707107, -0.707107, 0)), sim_step, out_step, test_name, animate, save);
-  if (!animate) {
-    test_passed &= ValidateReference(test_name, "Pos", 2e-3);
-    test_passed &= ValidateReference(test_name, "Vel", 2e-3);
-    test_passed &= ValidateReference(test_name, "Acc", 2e-2);
-    test_passed &= ValidateReference(test_name, "Quat", 1e-3);
-    test_passed &= ValidateReference(test_name, "Avel", 2e-2);
-    test_passed &= ValidateReference(test_name, "Aacc", 2e-2);
-    test_passed &= ValidateReference(test_name, "Rforce", 2e-2);
-    test_passed &= ValidateReference(test_name, "Rtorque", 5e-4);
-    test_passed &= ValidateEnergy(test_name, 1e-2);
-    test_passed &= ValidateConstraints(test_name, 1e-5);
-  }
+  ////test_name = "Universal_Case03";
+  ////TestUniversal(ChVector<>(0, 0, 0), Q_from_AngAxis(CH_C_PI / 2, ChVector<>(0.707107, -0.707107, 0)), sim_step, out_step, test_name, animate, save);
+  ////if (!animate) {
+  ////  test_passed &= ValidateReference(test_name, "Pos", 2e-3);
+  ////  test_passed &= ValidateReference(test_name, "Vel", 2e-3);
+  ////  test_passed &= ValidateReference(test_name, "Acc", 2e-2);
+  ////  test_passed &= ValidateReference(test_name, "Quat", 1e-3);
+  ////  test_passed &= ValidateReference(test_name, "Avel", 2e-2);
+  ////  test_passed &= ValidateReference(test_name, "Aacc", 2e-2);
+  ////  test_passed &= ValidateReference(test_name, "Rforce", 2e-2);
+  ////  test_passed &= ValidateReference(test_name, "Rtorque", 5e-4);
+  ////  test_passed &= ValidateEnergy(test_name, 1e-2);
+  ////  test_passed &= ValidateConstraints(test_name, 1e-5);
+  ////}
 
   // Return 0 if all tests passed and 1 otherwise
+  std::cout << std::endl << "UNIT TEST: " << (test_passed ? "PASSED" : "FAILED") << std::endl;
   return !test_passed;
 }
 

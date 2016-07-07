@@ -117,7 +117,7 @@ int main(int argc, char* argv[])
     test_passed &= ValidateReference(test_name, "Vel", 1e-4);
     test_passed &= ValidateReference(test_name, "Acc", 1e-1);
     test_passed &= ValidateReference(test_name, "Quat", 1e-5);
-    test_passed &= ValidateReference(test_name, "Avel", 1e-4);
+    test_passed &= ValidateReference(test_name, "Avel", 1e-3);
     test_passed &= ValidateReference(test_name, "Aacc", 5e-1);
     test_passed &= ValidateReference(test_name, "Rforce_Body1", 5e-1);
     test_passed &= ValidateReference(test_name, "Rtorque_Body1", 5e-1);
@@ -127,9 +127,8 @@ int main(int argc, char* argv[])
     test_passed &= ValidateConstraints(test_name, 1e-5);
   }
 
-
-
   // Return 0 if all tests passed and 1 otherwise
+  std::cout << std::endl << "UNIT TEST: " << (test_passed ? "PASSED" : "FAILED") << std::endl;
   return !test_passed;
 }
 

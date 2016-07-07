@@ -92,7 +92,7 @@ int main(int argc, char* argv[])
   TestDistance(ChVector<>(0, 0, 0),ChVector<>(0, 2, 0), ChCoordsys<>(ChVector<>(0, 2, 0),QUNIT), sim_step, out_step, test_name, animate, save);
   if (!animate) {
     test_passed &= ValidateReference(test_name, "Pos", 1e-3);
-    test_passed &= ValidateReference(test_name, "Vel", 1e-5);
+    test_passed &= ValidateReference(test_name, "Vel", 1e-4);
     test_passed &= ValidateReference(test_name, "Acc", 2e-2);
     test_passed &= ValidateReference(test_name, "Quat", 1e-3);
     test_passed &= ValidateReference(test_name, "Avel", 1e-2);
@@ -126,7 +126,7 @@ int main(int argc, char* argv[])
   TestDistance(ChVector<>(0, 0, 0),ChVector<>(0, 2, 0), ChCoordsys<>(ChVector<>(0, 4, 0),Q_from_AngZ(-CH_C_PI_2)), sim_step, out_step, test_name, animate, save);
   if (!animate) {
     test_passed &= ValidateReference(test_name, "Pos", 1e-3);
-    test_passed &= ValidateReference(test_name, "Vel", 1e-5);
+    test_passed &= ValidateReference(test_name, "Vel", 1e-4);
     test_passed &= ValidateReference(test_name, "Acc", 2e-2);
     test_passed &= ValidateReference(test_name, "Quat", 1e-3);
     test_passed &= ValidateReference(test_name, "Avel", 1e-2);
@@ -138,6 +138,7 @@ int main(int argc, char* argv[])
   }
 
   // Return 0 if all tests passed and 1 otherwise
+  std::cout << std::endl << "UNIT TEST: " << (test_passed ? "PASSED" : "FAILED") << std::endl;
   return !test_passed;
 }
 

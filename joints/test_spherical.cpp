@@ -119,6 +119,7 @@ int main(int argc, char* argv[])
   }
 
   // Return 0 if all tests passed and 1 otherwise
+  std::cout << std::endl << "UNIT TEST: " << (test_passed ? "PASSED" : "FAILED") << std::endl;
   return !test_passed;
 }
 
