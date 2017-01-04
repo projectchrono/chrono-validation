@@ -21,7 +21,7 @@
 
 #include <ostream>
 #include <fstream>
-#include <math.h>
+#include <cmath>
 
 #include "chrono/core/ChFileutils.h"
 #include "chrono/physics/ChSystem.h"
