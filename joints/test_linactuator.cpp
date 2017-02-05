@@ -157,10 +157,10 @@ bool TestLinActuator(const ChQuaternion<>& rot,              // translation alon
   ChSystem my_system;
   my_system.Set_G_acc(ChVector<>(0.0, 0.0, -g));
 
-  my_system.SetIntegrationType(ChSystem::INT_EULER_IMPLICIT_LINEARIZED);
+  my_system.SetTimestepperType(ChTimestepper::EULER_IMPLICIT_LINEARIZED);
   my_system.SetMaxItersSolverSpeed(100);
   my_system.SetMaxItersSolverStab(100); //Tasora stepper uses this, Anitescu does not
-  my_system.SetSolverType(ChSystem::SOLVER_SOR);
+  my_system.SetSolverType(ChSolver::SOR);
   my_system.SetTol(1e-6);
   my_system.SetTolForce(1e-4);
 
