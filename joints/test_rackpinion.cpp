@@ -238,7 +238,7 @@ bool TestRackPinion(const ChVector<>&     jointLoc,         // absolute location
     application->AddTypicalLogo();
     application->AddTypicalSky();
     application->AddTypicalLights();
-    core::vector3df lookat((f32)jointLoc.x, (f32)jointLoc.y, (f32)jointLoc.z);
+    core::vector3df lookat((f32)jointLoc.x(), (f32)jointLoc.y(), (f32)jointLoc.z());
     application->AddTypicalCamera(lookat + core::vector3df(0, 3, -6), lookat);
 
     // Now have the visulization tool (Irrlicht) create its geometry from the
@@ -337,7 +337,7 @@ bool TestRackPinion(const ChVector<>&     jointLoc,         // absolute location
   ChVector<> angVelLocRack = rack->GetWvel_loc();
   double transKE = 0.5 * massPinion * pinion->GetPos_dt().Length2() + 0.5 * massRack * rack->GetPos_dt().Length2();
   double rotKE = 0.5 * Vdot(angVelLocPinion, inertiaPinion * angVelLocPinion) + 0.5 * Vdot(angVelLocRack, inertiaRack * angVelLocRack);
-  double deltaPE = massPinion * g * (pinion->GetPos().z - jointLoc.z) + massRack * g * (rack->GetPos().z - jointLoc.z);
+  double deltaPE = massPinion * g * (pinion->GetPos().z() - jointLoc.z()) + massRack * g * (rack->GetPos().z() - jointLoc.z());
   double totalE0 = transKE + rotKE + deltaPE;
 
   // Simulation loop
@@ -384,7 +384,7 @@ bool TestRackPinion(const ChVector<>&     jointLoc,         // absolute location
       ChVector<> angVelLocRack = rack->GetWvel_loc();
       double transKE = 0.5 * massPinion * pinion->GetPos_dt().Length2() + 0.5 * massRack * rack->GetPos_dt().Length2();
       double rotKE = 0.5 * Vdot(angVelLocPinion, inertiaPinion * angVelLocPinion) + 0.5 * Vdot(angVelLocRack, inertiaRack * angVelLocRack);
-      double deltaPE = massPinion * g * (pinion->GetPos().z - jointLoc.z) + massRack * g * (rack->GetPos().z - jointLoc.z);
+      double deltaPE = massPinion * g * (pinion->GetPos().z() - jointLoc.z()) + massRack * g * (rack->GetPos().z() - jointLoc.z());
       double totalE = transKE + rotKE + deltaPE;
       out_energy << simTime << transKE << rotKE << deltaPE << totalE - totalE0 << std::endl;;
 

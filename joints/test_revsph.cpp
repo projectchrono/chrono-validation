@@ -229,7 +229,7 @@ bool TestRevSpherical(const ChVector<>&     jointLocGnd,      // absolute locati
     application->AddTypicalLogo();
     application->AddTypicalSky();
     application->AddTypicalLights();
-    core::vector3df lookat((f32)jointLocGnd.x, (f32)jointLocGnd.y, (f32)jointLocGnd.z);
+    core::vector3df lookat((f32)jointLocGnd.x(), (f32)jointLocGnd.y(), (f32)jointLocGnd.z());
     application->AddTypicalCamera(lookat + core::vector3df(0, 3, -6), lookat);
 
     // Now have the visulization tool (Irrlicht) create its geometry from the
@@ -337,7 +337,7 @@ bool TestRevSpherical(const ChVector<>&     jointLocGnd,      // absolute locati
   ChVector<> angVelLoc = pendulum->GetWvel_loc();
   double transKE = 0.5 * mass * pendulum->GetPos_dt().Length2();
   double rotKE = 0.5 * Vdot(angVelLoc, inertia * angVelLoc);
-  double deltaPE = mass * g * (pendulum->GetPos().z - PendCSYS.pos.z);
+  double deltaPE = mass * g * (pendulum->GetPos().z() - PendCSYS.pos.z());
   double totalE0 = transKE + rotKE + deltaPE;
 
   // Simulation loop
@@ -418,7 +418,7 @@ bool TestRevSpherical(const ChVector<>&     jointLocGnd,      // absolute locati
       ChVector<> angVelLoc = pendulum->GetWvel_loc();
       double transKE = 0.5 * mass * velocity.Length2();
       double rotKE = 0.5 * Vdot(angVelLoc, inertia * angVelLoc);
-      double deltaPE = mass * g * (position.z - PendCSYS.pos.z);
+      double deltaPE = mass * g * (position.z() - PendCSYS.pos.z());
       double totalE = transKE + rotKE + deltaPE;
       out_energy << simTime << transKE << rotKE << deltaPE << totalE - totalE0 << std::endl;;
 
