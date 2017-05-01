@@ -23,7 +23,7 @@
 #include <fstream>
 
 #include "chrono/core/ChFileutils.h"
-#include "chrono/physics/ChSystem.h"
+#include "chrono/physics/ChSystemNSC.h"
 #include "chrono/physics/ChBody.h"
 #include "chrono/physics/ChLinkRackpinion.h"
 #include "chrono/utils/ChUtilsInputOutput.h"
@@ -151,7 +151,7 @@ bool TestRackPinion(const ChVector<>&     jointLoc,         // absolute location
   // Create a ChronoENGINE physical system: all bodies and constraints will be
   // handled by this ChSystem object.
 
-  ChSystem my_system;
+  ChSystemNSC my_system;
   my_system.Set_G_acc(ChVector<>(0.0, 0.0, -g));
 
   my_system.SetTimestepperType(ChTimestepper::Type::EULER_IMPLICIT_LINEARIZED);
