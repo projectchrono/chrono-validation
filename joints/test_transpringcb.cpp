@@ -49,11 +49,12 @@ static const std::string ref_dir = "transpringcb_force/";
 // Functor classes implementing the force for a ChLinkSpringCB link.
 class MySpringForceCase01 : public ChLinkSpringCB::ForceFunctor {
   virtual double
-  operator()(double time,        // current time
-             double rest_length, // undeformed length
-             double length,      // current length
-             double vel)         // current velocity (positive when extending)
-  {
+  operator()(double time,         // current time
+             double rest_length,  // undeformed length
+             double length,       // current length
+             double vel,          // current velocity (positive when extending)
+             ChLinkSpringCB *link // back-pointer to associated link
+             ) {
     double spring_coef = 10;
     double damping_coef = .5;
 
@@ -64,11 +65,12 @@ class MySpringForceCase01 : public ChLinkSpringCB::ForceFunctor {
 
 class MySpringForceCase02 : public ChLinkSpringCB::ForceFunctor {
   virtual double
-  operator()(double time,        // current time
-             double rest_length, // undeformed length
-             double length,      // current length
-             double vel)         // current velocity (positive when extending)
-  {
+  operator()(double time,         // current time
+             double rest_length,  // undeformed length
+             double length,       // current length
+             double vel,          // current velocity (positive when extending)
+             ChLinkSpringCB *link // back-pointer to associated link
+             ) {
     double spring_coef = 100;
     double damping_coef = 5;
 
@@ -79,11 +81,12 @@ class MySpringForceCase02 : public ChLinkSpringCB::ForceFunctor {
 
 class MySpringForceCase03 : public ChLinkSpringCB::ForceFunctor {
   virtual double
-  operator()(double time,        // current time
-             double rest_length, // undeformed length
-             double length,      // current length
-             double vel)         // current velocity (positive when extending)
-  {
+  operator()(double time,         // current time
+             double rest_length,  // undeformed length
+             double length,       // current length
+             double vel,          // current velocity (positive when extending)
+             ChLinkSpringCB *link // back-pointer to associated link
+             ) {
     double spring_coef = 50;
     double spring_nonlin_coef = 10;
     double damping_coef = 5;
