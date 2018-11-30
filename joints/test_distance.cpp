@@ -22,13 +22,14 @@
 #include <ostream>
 #include <fstream>
 
-#include "chrono/core/ChFileutils.h"
 #include "chrono/physics/ChSystemNSC.h"
 #include "chrono/physics/ChBody.h"
 #include "chrono/utils/ChUtilsInputOutput.h"
 #include "chrono/utils/ChUtilsValidation.h"
 
 #include "chrono_irrlicht/ChIrrApp.h"
+
+#include "chrono_thirdparty/filesystem/path.h"
 
 #include "ChronoValidation_config.h"
 
@@ -70,11 +71,11 @@ int main(int argc, char* argv[])
   SetChronoDataPath(CHRONO_DATA_DIR);
 
   // Create output directory (if it does not already exist)
-  if (ChFileutils::MakeDirectory(val_dir.c_str()) < 0) {
+  if (!filesystem::create_directory(filesystem::path(val_dir))) {
     std::cout << "Error creating directory " << val_dir << std::endl;
     return 1;
   }
-  if (ChFileutils::MakeDirectory(out_dir.c_str()) < 0) {
+  if (!filesystem::create_directory(filesystem::path(out_dir))) {
     std::cout << "Error creating directory " << out_dir << std::endl;
     return 1;
   }
@@ -252,7 +253,7 @@ bool TestDistance(const ChVector<>&     jointLocGnd,      // absolute location o
     int    outFrame = 1;
 
     std::string pov_dir = out_dir + "POVRAY_" + testName;
-    if (ChFileutils::MakeDirectory(pov_dir.c_str()) < 0) {
+    if (!filesystem::create_directory(filesystem::path(pov_dir))) {
       std::cout << "Error creating directory " << pov_dir << std::endl;
       return false;
     }
