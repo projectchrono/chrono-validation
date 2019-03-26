@@ -230,34 +230,29 @@ bool TestRotSpring(const ChVector<>&     jointLoc,         // absolute location 
 
   auto revoluteJoint = std::make_shared<ChLinkLockRevolute>();
   revoluteJoint->Initialize(pendulum, ground, ChCoordsys<>(jointLoc, jointRot));
-
-
-  // Add a rotational spring damper to the revolute joint
-  ChLinkForce *force = new ChLinkForce;
-  ChFunction_CustomSpring *customSpring = new ChFunction_CustomSpring;
-
-  force->Set_active(1);
-  force->Set_K(200);
-  force->Set_R(10);
-  if(customSpringType == 2)
-  {
-    force->Set_K(1);
-    force->Set_modul_K(customSpring);
-  }
-  revoluteJoint->SetForce_Rz(force);
   my_system.AddLink(revoluteJoint);
 
+  // Add a rotational spring damper to the revolute joint
 
+  auto force = std::make_unique<ChLinkForce>();
+  auto customSpring = std::make_shared<ChFunction_CustomSpring>();
 
-
+  revoluteJoint->GetForce_Rz().SetActive(true);
+  revoluteJoint->GetForce_Rz().SetK(200);
+  revoluteJoint->GetForce_Rz().SetR(10);
+  if (customSpringType == 2) {
+    revoluteJoint->GetForce_Rz().SetK(1);
+    revoluteJoint->GetForce_Rz().SetModulationK(customSpring);
+  }
 
   // Perform the simulation (animation with Irrlicht option)
   // -------------------------------------------------------
 
-  if (animate)
-  {
+  if (animate) {
     // Create the Irrlicht application for visualization
-    ChIrrApp * application = new ChIrrApp(&my_system, L"ChLinkRevolute demo", core::dimension2d<u32>(800, 600), false, true);
+    ChIrrApp *application =
+        new ChIrrApp(&my_system, L"ChLinkRevolute demo",
+                     core::dimension2d<u32>(800, 600), false, true);
     application->AddTypicalLogo();
     application->AddTypicalSky();
     application->AddTypicalLights();
