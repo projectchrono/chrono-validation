@@ -62,11 +62,17 @@ utils::CSV_writer OutStream();
 //
 int main(int argc, char* argv[])
 {
+    std::cout << "BEGIN test_revolute  argc=" << argc << std::endl;
+    for (int i = 0; i < argc; i++)
+        std::cout << "  argv=" << argv[i] << std::endl;
+
   bool animate = (argc > 1);
   bool save = (argc > 2);
 
   // Set the path to the Chrono data folder
   SetChronoDataPath(CHRONO_DATA_DIR);
+
+  std::cout << "PATH to Chrono data: " << CHRONO_DATA_DIR << std::endl;
 
   // Create output directory (if it does not already exist)
   if (!filesystem::create_directory(filesystem::path(val_dir))) {
@@ -77,6 +83,8 @@ int main(int argc, char* argv[])
       std::cout << "Error creating directory " << out_dir << std::endl;
     return 1;
   }
+
+  std::cout << "OUTPUT directory: " << out_dir << std::endl;
 
   // Set the simulation and output step sizes
   double sim_step = 5e-4;
@@ -140,6 +148,8 @@ bool TestRevolute(const ChVector<>&     jointLoc,         // absolute location o
                   bool                  save)             // if true, also save animation data
 {
   std::cout << "TEST: " << testName << std::endl;
+  std::cout << "  animate = " << animate << std::endl;
+  std::cout << "  save = " << save << std::endl;
 
   // Settings
   //---------
@@ -160,6 +170,8 @@ bool TestRevolute(const ChVector<>&     jointLoc,         // absolute location o
   // Create a ChronoENGINE physical system: all bodies and constraints will be
   // handled by this ChSystem object.
 
+  std::cout << "  Create system..." << std::endl;
+
   ChSystemNSC my_system;
   my_system.Set_G_acc(ChVector<>(0.0, 0.0, -g));
 
@@ -171,6 +183,8 @@ bool TestRevolute(const ChVector<>&     jointLoc,         // absolute location o
   my_system.SetTolForce(1e-4);
 
   // Create the ground body
+
+  std::cout << "  Create bodies..." << std::endl;
 
   auto ground = std::make_shared<ChBody>();
   my_system.AddBody(ground);
@@ -208,6 +222,8 @@ bool TestRevolute(const ChVector<>&     jointLoc,         // absolute location o
   // Create revolute joint between pendulum and ground at "loc" in the global
   // reference frame. The revolute joint's axis of rotation will be the Z axis
   // of the specified rotation matrix.
+
+  std::cout << "  Create joint..." << std::endl;
 
   auto revoluteJoint = std::make_shared<ChLinkLockRevolute>();
   revoluteJoint->Initialize(pendulum, ground, ChCoordsys<>(jointLoc, jointRot));
@@ -274,6 +290,8 @@ bool TestRevolute(const ChVector<>&     jointLoc,         // absolute location o
   // Perform the simulation (record results option)
   // ------------------------------------------------
 
+  std::cout << "  Create output streams..." << std::endl;
+
   // Create the CSV_Writer output objects (TAB delimited)
   utils::CSV_writer out_pos = OutStream();
   utils::CSV_writer out_vel = OutStream();
@@ -308,6 +326,7 @@ bool TestRevolute(const ChVector<>&     jointLoc,         // absolute location o
 
   // Perform a system assembly to ensure we have the correct accelerations at
   // the initial time.
+  std::cout << "  Perform system assembly..." << std::endl;
   my_system.DoFullAssembly();
 
   // Total energy at initial time.
@@ -322,11 +341,13 @@ bool TestRevolute(const ChVector<>&     jointLoc,         // absolute location o
   double simTime = 0;
   double outTime = 0;
 
+  std::cout << "  Start simulation loop...  timeRecord=" << timeRecord << std::endl;
   while (simTime <= timeRecord + simTimeStep / 2)
   {
     // Ensure that the final data point is recorded.
     if (simTime >= outTime - simTimeStep / 2)
     {
+      std::cout << "    record output at simTime=" << simTime << std::endl;
 
       // CM position, velocity, and acceleration (expressed in global frame).
       const ChVector<>& position = pendulum->GetPos();
@@ -398,6 +419,20 @@ bool TestRevolute(const ChVector<>&     jointLoc,         // absolute location o
   }
 
   // Write output files
+  
+  std::cout << "  Write output files..." << std::endl;
+  std::cout << "     file=" << out_dir + testName + "_CHRONO_Pos.txt" << std::endl;
+  std::cout << "     file=" << out_dir + testName + "_CHRONO_Vel.txt" << std::endl;
+  std::cout << "     file=" << out_dir + testName + "_CHRONO_Acc.txt" << std::endl;
+  std::cout << "     file=" << out_dir + testName + "_CHRONO_Quat.txt" << std::endl;
+  std::cout << "     file=" << out_dir + testName + "_CHRONO_Avel.txt" << std::endl;
+  std::cout << "     file=" << out_dir + testName + "_CHRONO_Aacc.txt" << std::endl;
+  std::cout << "     file=" << out_dir + testName + "_CHRONO_Rforce.txt" << std::endl;
+  std::cout << "     file=" << out_dir + testName + "_CHRONO_Rtorque.txt" << std::endl;
+  std::cout << "     file=" << out_dir + testName + "_CHRONO_Energy.txt" << std::endl;
+  std::cout << "     file=" << out_dir + testName + "_CHRONO_Constraints.txt" << std::endl;
+
+  
   out_pos.write_to_file(out_dir + testName + "_CHRONO_Pos.txt", testName + "\n\n");
   out_vel.write_to_file(out_dir + testName + "_CHRONO_Vel.txt", testName + "\n\n");
   out_acc.write_to_file(out_dir + testName + "_CHRONO_Acc.txt", testName + "\n\n");
@@ -425,11 +460,18 @@ bool ValidateReference(const std::string& testName,    // name of this test
                        const std::string& what,        // identifier for test quantity
                        double             tolerance)   // validation tolerance
 {
+
   std::string sim_file = out_dir + testName + "_CHRONO_" + what + ".txt";
   std::string ref_file = ref_dir + testName + "_ADAMS_" + what + ".txt";
   utils::DataVector norms;
 
-  bool check = utils::Validate(sim_file, utils::GetValidationDataFile(ref_file), utils::RMS_NORM, tolerance, norms);
+  std::cout << " START validation simulation" << std::endl;
+  std::cout << "     sim_file=" << sim_file << std::endl;
+  std::cout << "     ref_file=" << ref_file << std::endl;
+  std::cout << "     ref_file_full=" << utils::GetValidationDataFile(ref_file) << std::endl;
+
+  bool check = utils::Validate(sim_file, utils::GetValidationDataFile(ref_file),
+                               utils::RMS_NORM, tolerance, norms);
   std::cout << "   validate " << what << (check ? ": Passed" : ": Failed") << "  [  ";
   for (size_t col = 0; col < norms.size(); col++)
     std::cout << norms[col] << "  ";
@@ -445,6 +487,9 @@ bool ValidateConstraints(const std::string& testName,  // name of this test
 {
   std::string sim_file = out_dir + testName + "_CHRONO_Constraints.txt";
   utils::DataVector norms;
+
+  std::cout << " START validation constraints" << std::endl;
+  std::cout << "     sim_file=" << sim_file << std::endl;
 
   bool check = utils::Validate(sim_file, utils::RMS_NORM, tolerance, norms);
   std::cout << "   validate Constraints" << (check ? ": Passed" : ": Failed") << "  [  ";
@@ -462,6 +507,9 @@ bool ValidateEnergy(const std::string& testName,  // name of this test
 {
   std::string sim_file = out_dir + testName + "_CHRONO_Energy.txt";
   utils::DataVector norms;
+
+  std::cout << " START validation energy" << std::endl;
+  std::cout << "     sim_file=" << sim_file << std::endl;
 
   utils::Validate(sim_file, utils::RMS_NORM, tolerance, norms);
 
