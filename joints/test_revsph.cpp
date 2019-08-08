@@ -180,11 +180,11 @@ bool TestRevSpherical(const ChVector<>&     jointLocGnd,      // absolute locati
 
   // Create the ground body
 
-  auto ground = std::make_shared<ChBody>();
+  auto ground = chrono_types::make_shared<ChBody>();
   my_system.AddBody(ground);
   ground->SetBodyFixed(true);
   // Add some geometry to the ground body for visualizing the revolute joint
-  auto cyl_g = std::make_shared<ChCylinderShape>();
+  auto cyl_g = chrono_types::make_shared<ChCylinderShape>();
   cyl_g->GetCylinderGeometry().p1 = jointLocGnd + jointRevAxis*0.4;
   cyl_g->GetCylinderGeometry().p2 = jointLocGnd + jointRevAxis*-0.4;
   cyl_g->GetCylinderGeometry().rad = 0.05;
@@ -196,18 +196,18 @@ bool TestRevSpherical(const ChVector<>&     jointLocGnd,      // absolute locati
   // consistent with the specified joint location.
   // The pendulum CG is assumed to be at half its length.
 
-  auto pendulum = std::make_shared<ChBody>();
+  auto pendulum = chrono_types::make_shared<ChBody>();
   my_system.AddBody(pendulum);
   pendulum->SetPos(PendCSYS.pos);
   pendulum->SetRot(PendCSYS.rot);
   pendulum->SetMass(mass);
   pendulum->SetInertiaXX(inertiaXX);
   // Add some geometry to the pendulum for visualization
-  auto sph_p = std::make_shared<ChSphereShape>();
+  auto sph_p = chrono_types::make_shared<ChSphereShape>();
   sph_p->GetSphereGeometry().center = pendulum->TransformPointParentToLocal(jointLocPend);
   sph_p->GetSphereGeometry().rad = 0.05;
   pendulum->AddAsset(sph_p);
-  auto box_p = std::make_shared<ChBoxShape>();
+  auto box_p = chrono_types::make_shared<ChBoxShape>();
   box_p->GetBoxGeometry().Size = ChVector<>(0.05 * length, 0.5 * length, 0.05 * length);
   pendulum->AddAsset(box_p);
 
@@ -216,7 +216,7 @@ bool TestRevSpherical(const ChVector<>&     jointLocGnd,      // absolute locati
   // The constrained distance is set equal to the inital distance between
   // "jointLocPend" and "jointLocGnd".
 
-  auto revSphericalConstraint = std::make_shared<ChLinkRevoluteSpherical>();
+  auto revSphericalConstraint = chrono_types::make_shared<ChLinkRevoluteSpherical>();
   revSphericalConstraint->Initialize(ground, pendulum, false, jointLocGnd, jointRevAxis, jointLocPend, true);
   my_system.AddLink(revSphericalConstraint);
 
@@ -424,11 +424,8 @@ bool TestRevSpherical(const ChVector<>&     jointLocGnd,      // absolute locati
       out_energy << simTime << transKE << rotKE << deltaPE << totalE - totalE0 << std::endl;;
 
       // Constraint violations
-      ChMatrix<>* C = revSphericalConstraint->GetC();
-      out_cnstr << simTime
-                << C->GetElement(0, 0)
-                << C->GetElement(1, 0)<< std::endl;
-
+      ChVectorDynamic<> C = revSphericalConstraint->GetC();
+      out_cnstr << simTime << C(0) << C(1) << std::endl;
 
       // Increment output time
       outTime += outTimeStep;

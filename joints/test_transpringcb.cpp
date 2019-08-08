@@ -269,11 +269,11 @@ bool TestTranSpringCB(
 
   // Create the ground body
 
-  auto ground = std::make_shared<ChBody>();
+  auto ground = chrono_types::make_shared<ChBody>();
   my_system.AddBody(ground);
   ground->SetBodyFixed(true);
   // Add some geometry to the ground body for visualizing the revolute joint
-  auto sph_g = std::make_shared<ChSphereShape>();
+  auto sph_g = chrono_types::make_shared<ChSphereShape>();
   sph_g->GetSphereGeometry().center = jointLocGnd;
   sph_g->GetSphereGeometry().rad = 0.05;
   ground->AddAsset(sph_g);
@@ -283,19 +283,19 @@ bool TestTranSpringCB(
   // consistent with the specified joint location.
   // The pendulum CG is assumed to be at half its length.
 
-  auto pendulum = std::make_shared<ChBody>();
+  auto pendulum = chrono_types::make_shared<ChBody>();
   my_system.AddBody(pendulum);
   pendulum->SetPos(PendCSYS.pos);
   pendulum->SetRot(PendCSYS.rot);
   pendulum->SetMass(mass);
   pendulum->SetInertiaXX(inertiaXX);
   // Add some geometry to the pendulum for visualization
-  auto sph_p = std::make_shared<ChSphereShape>();
+  auto sph_p = chrono_types::make_shared<ChSphereShape>();
   sph_p->GetSphereGeometry().center =
       pendulum->TransformPointParentToLocal(jointLocPend);
   sph_p->GetSphereGeometry().rad = 0.05;
   pendulum->AddAsset(sph_p);
-  auto box_p = std::make_shared<ChBoxShape>();
+  auto box_p = chrono_types::make_shared<ChBoxShape>();
   box_p->GetBoxGeometry().Size =
       ChVector<>(0.5 * length - 0.05, 0.05 * length, 0.05 * length);
   pendulum->AddAsset(box_p);
@@ -308,7 +308,7 @@ bool TestTranSpringCB(
 
   ChLinkSpringCB::ForceFunctor *force;
 
-  auto spring = std::make_shared<ChLinkSpringCB>();
+  auto spring = chrono_types::make_shared<ChLinkSpringCB>();
   spring->Initialize(pendulum, ground, false, jointLocPend, jointLocGnd, true);
   if (customSpringType == 1) {
     force = new MySpringForceCase01;

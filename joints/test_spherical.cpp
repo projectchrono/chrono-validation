@@ -168,11 +168,11 @@ bool TestSpherical(const ChVector<>&     jointLoc,         // absolute location 
 
   // Create the ground body
 
-  auto ground = std::make_shared<ChBody>();
+  auto ground = chrono_types::make_shared<ChBody>();
   my_system.AddBody(ground);
   ground->SetBodyFixed(true);
   // Add some geometry to the ground body for visualizing the spherical joint
-  auto sph_g = std::make_shared<ChSphereShape>();
+  auto sph_g = chrono_types::make_shared<ChSphereShape>();
   sph_g->GetSphereGeometry().center = jointLoc;
   sph_g->GetSphereGeometry().rad = 0.2;
   ground->AddAsset(sph_g);
@@ -184,19 +184,19 @@ bool TestSpherical(const ChVector<>&     jointLoc,         // absolute location 
   // consistent with the specified joint location.
   // The pendulum CG is assumed to be at half its length.
 
-  auto pendulum = std::make_shared<ChBody>();
+  auto pendulum = chrono_types::make_shared<ChBody>();
   my_system.AddBody(pendulum);
   pendulum->SetPos(jointLoc + jointRot.Rotate(ChVector<>(length / 2, 0, 0)));
   pendulum->SetRot(jointRot);
   pendulum->SetMass(mass);
   pendulum->SetInertiaXX(inertiaXX);
   // Add some geometry to the pendulum for visualization
-  auto cyl_p1 = std::make_shared<ChCylinderShape>();
+  auto cyl_p1 = chrono_types::make_shared<ChCylinderShape>();
   cyl_p1->GetCylinderGeometry().p1 = ChVector<>(-length / 2, 0, 0);
   cyl_p1->GetCylinderGeometry().p2 = ChVector<>(length / 2, 0, 0);
   cyl_p1->GetCylinderGeometry().rad = 0.1;
   pendulum->AddAsset(cyl_p1);
-  auto cyl_p2 = std::make_shared<ChCylinderShape>();
+  auto cyl_p2 = chrono_types::make_shared<ChCylinderShape>();
   cyl_p2->GetCylinderGeometry().p1 = ChVector<>(-length / 2, 0, -0.2);
   cyl_p2->GetCylinderGeometry().p2 = ChVector<>(-length / 2, 0, 0.2);
   cyl_p2->GetCylinderGeometry().rad = 0.1;
@@ -206,7 +206,7 @@ bool TestSpherical(const ChVector<>&     jointLoc,         // absolute location 
   // reference frame. The revolute joint's axis of rotation will be the Z axis
   // of the specified rotation matrix.
 
-  auto sphericalJoint = std::make_shared<ChLinkLockSpherical>();
+  auto sphericalJoint = chrono_types::make_shared<ChLinkLockSpherical>();
   sphericalJoint->Initialize(pendulum, ground, ChCoordsys<>(jointLoc, jointRot));
   my_system.AddLink(sphericalJoint);
 
@@ -341,14 +341,11 @@ bool TestSpherical(const ChVector<>&     jointLoc,         // absolute location 
       double rotKE = 0.5 * Vdot(angVelLoc, inertia * angVelLoc);
       double deltaPE = mass * g * (position.z() - jointLoc.z());
       double totalE = transKE + rotKE + deltaPE;
-      out_energy << simTime << transKE << rotKE << deltaPE << totalE - totalE0 << std::endl;;
+      out_energy << simTime << transKE << rotKE << deltaPE << totalE - totalE0 << std::endl;
 
       // Constraint violations
-      ChMatrix<>* C = sphericalJoint->GetC();
-      out_cnstr << simTime
-                << C->GetElement(0, 0)
-                << C->GetElement(1, 0)
-                << C->GetElement(2, 0) << std::endl;
+      ChVectorDynamic<> C = sphericalJoint->GetC();
+      out_cnstr << simTime << C(0) << C(1) << C(2) << std::endl;
 
       // Increment output time
       outTime += outTimeStep;

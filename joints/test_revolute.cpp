@@ -186,11 +186,11 @@ bool TestRevolute(const ChVector<>&     jointLoc,         // absolute location o
 
   std::cout << "  Create bodies..." << std::endl;
 
-  auto ground = std::make_shared<ChBody>();
+  auto ground = chrono_types::make_shared<ChBody>();
   my_system.AddBody(ground);
   ground->SetBodyFixed(true);
   // Add some geometry to the ground body for visualizing the revolute joint
-  auto cyl_g = std::make_shared<ChCylinderShape>();
+  auto cyl_g = chrono_types::make_shared<ChCylinderShape>();
   cyl_g->GetCylinderGeometry().p1 = jointLoc + jointRot.Rotate(ChVector<>(0, 0, -0.4));
   cyl_g->GetCylinderGeometry().p2 = jointLoc + jointRot.Rotate(ChVector<>(0, 0, 0.4));
   cyl_g->GetCylinderGeometry().rad = 0.05;
@@ -201,19 +201,19 @@ bool TestRevolute(const ChVector<>&     jointLoc,         // absolute location o
   // consistent with the specified joint location.
   // The pendulum CG is assumed to be at half its length.
 
-  auto pendulum = std::make_shared<ChBody>();
+  auto pendulum = chrono_types::make_shared<ChBody>();
   my_system.AddBody(pendulum);
   pendulum->SetPos(jointLoc + jointRot.Rotate(ChVector<>(length / 2, 0, 0)));
   pendulum->SetRot(jointRot);
   pendulum->SetMass(mass);
   pendulum->SetInertiaXX(inertiaXX);
   // Add some geometry to the pendulum for visualization
-  auto cyl_p1 = std::make_shared<ChCylinderShape>();
+  auto cyl_p1 = chrono_types::make_shared<ChCylinderShape>();
   cyl_p1->GetCylinderGeometry().p1 = ChVector<>(-length / 2, 0, 0);
   cyl_p1->GetCylinderGeometry().p2 = ChVector<>(length / 2, 0, 0);
   cyl_p1->GetCylinderGeometry().rad = 0.1;
   pendulum->AddAsset(cyl_p1);
-  auto cyl_p2 = std::make_shared<ChCylinderShape>();
+  auto cyl_p2 = chrono_types::make_shared<ChCylinderShape>();
   cyl_p2->GetCylinderGeometry().p1 = ChVector<>(-length / 2, 0, -0.2);
   cyl_p2->GetCylinderGeometry().p2 = ChVector<>(-length / 2, 0, 0.2);
   cyl_p2->GetCylinderGeometry().rad = 0.1;
@@ -225,7 +225,7 @@ bool TestRevolute(const ChVector<>&     jointLoc,         // absolute location o
 
   std::cout << "  Create joint..." << std::endl;
 
-  auto revoluteJoint = std::make_shared<ChLinkLockRevolute>();
+  auto revoluteJoint = chrono_types::make_shared<ChLinkLockRevolute>();
   revoluteJoint->Initialize(pendulum, ground, ChCoordsys<>(jointLoc, jointRot));
   ////ChSharedPtr<ChLinkRevolute>  revoluteJoint(new ChLinkRevolute);
   ////revoluteJoint->Initialize(pendulum, ground, ChFrame<>(jointLoc, jointRot));
@@ -399,13 +399,8 @@ bool TestRevolute(const ChVector<>&     jointLoc,         // absolute location o
       out_energy << simTime << transKE << rotKE << deltaPE << totalE - totalE0 << std::endl;;
 
       // Constraint violations
-      ChMatrix<>* C = revoluteJoint->GetC();
-      out_cnstr << simTime
-                << C->GetElement(0, 0)
-                << C->GetElement(1, 0)
-                << C->GetElement(2, 0)
-                << C->GetElement(3, 0)
-                << C->GetElement(4, 0) << std::endl;
+      ChVectorDynamic<> C = revoluteJoint->GetC();
+      out_cnstr << simTime << C(0) << C(1) << C(2) << C(3) << C(4) << std::endl;
 
       // Increment output time
       outTime += outTimeStep;

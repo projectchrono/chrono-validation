@@ -168,24 +168,24 @@ bool TestLinActuator(const ChQuaternion<>& rot,              // translation alon
 
   // Create the ground body.
 
-  auto ground = std::make_shared<ChBody>();
+  auto ground = chrono_types::make_shared<ChBody>();
   my_system.AddBody(ground);
   ground->SetBodyFixed(true);
 
   // Add geometry to the ground body for visualizing the translational joint
-  auto box_g = std::make_shared<ChBoxShape>();
+  auto box_g = chrono_types::make_shared<ChBoxShape>();
   box_g->GetBoxGeometry().SetLengths(ChVector<>(0.1, 0.1, 5));
   box_g->GetBoxGeometry().Pos = 2.5 * axis;
   box_g->GetBoxGeometry().Rot = rot;
   ground->AddAsset(box_g);
 
-  auto col_g = std::make_shared<ChColorAsset>();
+  auto col_g = chrono_types::make_shared<ChColorAsset>();
   col_g->SetColor(ChColor(0.6f, 0.2f, 0.2f));
   ground->AddAsset(col_g);
 
   // Create the plate body.
 
-  auto plate = std::make_shared<ChBody>();
+  auto plate = chrono_types::make_shared<ChBody>();
   my_system.AddBody(plate);
   plate->SetPos(ChVector<>(0, 0, 0));
   plate->SetRot(rot);
@@ -194,11 +194,11 @@ bool TestLinActuator(const ChQuaternion<>& rot,              // translation alon
   plate->SetInertiaXX(inertiaXX);
 
   // Add geometry to the plate for visualization
-  auto box_p = std::make_shared<ChBoxShape>();
+  auto box_p = chrono_types::make_shared<ChBoxShape>();
   box_p->GetBoxGeometry().SetLengths(ChVector<>(1, 1, 0.2));
   plate->AddAsset(box_p);
 
-  auto col_p = std::make_shared<ChColorAsset>();
+  auto col_p = chrono_types::make_shared<ChColorAsset>();
   col_p->SetColor(ChColor(0.2f, 0.2f, 0.6f));
   plate->AddAsset(col_p);
 
@@ -206,7 +206,7 @@ bool TestLinActuator(const ChQuaternion<>& rot,              // translation alon
   // We set the ground as the "master" body (second one in the initialization
   // call) so that the link coordinate system is expressed in the ground frame.
 
-  auto prismatic = std::make_shared<ChLinkLockPrismatic>();
+  auto prismatic = chrono_types::make_shared<ChLinkLockPrismatic>();
   prismatic->Initialize(plate, ground, ChCoordsys<>(ChVector<>(0, 0, 0), rot));
   my_system.AddLink(prismatic);
 
@@ -214,14 +214,14 @@ bool TestLinActuator(const ChQuaternion<>& rot,              // translation alon
   //   y(t) = 0 + t * desiredSpeed
   //   y'(t) = desiredSpeed
 
-  auto actuator_fun = std::make_shared<ChFunction_Ramp>(0.0, desiredSpeed);
+  auto actuator_fun = chrono_types::make_shared<ChFunction_Ramp>(0.0, desiredSpeed);
 
   // Create the linear actuator, connecting the plate to the ground.
   // Here, we set the plate as the master body (second one in the initialization
   // call) so that the link coordinate system is expressed in the plate body
   // frame.
 
-  auto actuator = std::make_shared<ChLinkLinActuator>();
+  auto actuator = chrono_types::make_shared<ChLinkLinActuator>();
   ChVector<> pt1 = ChVector<>(0, 0, 0);
   ChVector<> pt2 = axis;
   actuator->Initialize(ground, plate, false, ChCoordsys<>(pt1, rot), ChCoordsys<>(pt2, rot));
@@ -362,17 +362,12 @@ bool TestLinActuator(const ChQuaternion<>& rot,              // translation alon
 
 
       // Constraint violations in prismatic joint
-      ChMatrix<>* CP = prismatic->GetC();
-      out_cnstrP << simTime
-                 << CP->GetElement(0, 0)
-                 << CP->GetElement(1, 0)
-                 << CP->GetElement(2, 0)
-                 << CP->GetElement(3, 0)
-                 << CP->GetElement(4, 0) << std::endl;
+      ChVectorDynamic<> CP = prismatic->GetC();
+      out_cnstrP << simTime << CP(0) << CP(1) << CP(2) << CP(3) << CP(4) << std::endl;
 
       // Constraint violations in linear actuator
-      ChMatrix<>* CA = actuator->GetC();
-      out_cnstrA << simTime << CA->GetElement(0, 0) << std::endl;
+      ChVectorDynamic<> CA = actuator->GetC();
+      out_cnstrA << simTime << CA(0) << std::endl;
 
       // Increment output time
       outTime += outTimeStep;
